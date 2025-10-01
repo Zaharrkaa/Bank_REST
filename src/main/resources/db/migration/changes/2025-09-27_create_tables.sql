@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS cards (
     number VARCHAR(16) NOT NULL UNIQUE,
     owner_id INT NOT NULL,
     expiry_date DATE NOT NULL,
-    cvv INT NOT NULL,
+    cvv VARCHAR(3) NOT NULL,
     status VARCHAR(50) NOT NULL,
     balance INT DEFAULT 0,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE

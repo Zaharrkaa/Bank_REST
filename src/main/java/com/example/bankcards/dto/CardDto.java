@@ -1,24 +1,33 @@
 package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.Status;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 public class CardDto {
 
+    @NotBlank(message = "Card number is required")
+    @Size(min = 16, max = 16, message = "Card number must contain exactly 16 digits")
     private String number;
 
+    @NotBlank(message = "Owner name is required")
     private String ownerName;
 
     private LocalDate expiryDate;
 
-    private int cvv;
+    @NotBlank(message = "Cvv is required")
+    @Size(min = 3, max = 3, message = "Cvv must contain exactly 3 digits")
+    private String cvv;
 
     private Status status;
 
-    private int balance;
+    @Min(value = 0, message = "Balance can not be negative")
+    private Integer balance;
 
-    public CardDto(String number, String ownerName, LocalDate expiryDate, int cvv, Status status, int balance) {
+    public CardDto(String number, String ownerName, LocalDate expiryDate, String cvv, Status status, Integer balance) {
         this.number = number;
         this.ownerName = ownerName;
         this.expiryDate = expiryDate;
@@ -27,19 +36,19 @@ public class CardDto {
         this.balance = balance;
     }
 
-    public int getBalance() {
+    public Integer getBalance() {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public void setBalance(Integer balance) {
         this.balance = balance;
     }
 
-    public int getCvv() {
+    public String getCvv() {
         return cvv;
     }
 
-    public void setCvv(int cvv) {
+    public void setCvv(String cvv) {
         this.cvv = cvv;
     }
 

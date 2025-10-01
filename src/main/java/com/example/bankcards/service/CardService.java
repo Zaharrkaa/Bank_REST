@@ -10,6 +10,8 @@ import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
@@ -42,6 +45,15 @@ public class CardService {
     }
 
     @Transactional
+    public void delete(String number){
+        Optional<Card> card = cardRepository.findByNumber(number);
+        if (card.isPresent()) {
+            cardRepository.delete(card.get());
+        }
+        else throw new CardNotFoundException();
+    }
+
+    @Transactional
     public void activate(String number) {
         Optional<Card> card = cardRepository.findByNumber(number);
         if (card.isPresent()) {
@@ -61,7 +73,26 @@ public class CardService {
         else throw new CardNotFoundException();
     }
 
-    public List<CardDto> findAll() {
+    public List<CardDto> findByNumberLike(int page, int size, String number, String ownerName) {
+        Page<Card> cards = cardRepository.findByNumberContaining(PageRequest.of(page, size), number);
+        List<CardDto> cardDtos = cards.stream().map(cardMapper::toCardDto).toList();
+        cardDtos.forEach(System.out::println);
+        return cardDtos.stream().filter(cardDto -> cardDto.getOwnerName().equals(ownerName)).toList();
+    }
+
+    public Integer balance(String number, String ownerName) {
+        Optional<Card> card = cardRepository.findByNumber(number);
+        if (card.isPresent()) {
+            Card cardToCheck = card.get();
+            if(cardToCheck.getOwner().getUsername().equals(ownerName)){
+                return cardToCheck.getBalance();
+            }
+            else throw new CardNotFoundException();
+        }
+        else throw new CardNotFoundException();
+    }
+
+    public List<CardDto> findAll(){
         List<Card> cards = cardRepository.findAll();
         return cards.stream().map(cardMapper::toCardDto).toList();
     }

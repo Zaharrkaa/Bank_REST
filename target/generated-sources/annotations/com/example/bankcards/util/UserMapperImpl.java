@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-30T11:47:18+0300",
+    date = "2025-10-01T01:01:55+0300",
     comments = "version: 1.6.3, compiler: javac, environment: Java 24.0.1 (Oracle Corporation)"
 )
 @Component
@@ -99,8 +99,8 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        int balance = 0;
-        int cvv = 0;
+        Integer balance = null;
+        String cvv = null;
         LocalDate expiryDate = null;
         String number = null;
         Status status = null;
@@ -138,7 +138,9 @@ public class UserMapperImpl implements UserMapper {
 
         Card card = new Card();
 
-        card.setBalance( cardDto.getBalance() );
+        if ( cardDto.getBalance() != null ) {
+            card.setBalance( cardDto.getBalance() );
+        }
         card.setStatus( cardDto.getStatus() );
         card.setCvv( cardDto.getCvv() );
         card.setExpiryDate( cardDto.getExpiryDate() );

@@ -25,7 +25,7 @@ public class Card {
     private LocalDate expiryDate;
 
     @Column(name = "cvv")
-    private int cvv;
+    private String cvv;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -38,7 +38,7 @@ public class Card {
 
     }
 
-    public Card(String number, LocalDate expiryDate, int cvv, Status status, int balance) {
+    public Card(String number, LocalDate expiryDate, String cvv, Status status, int balance) {
         this.number = number;
         this.expiryDate = expiryDate;
         this.cvv = cvv;
@@ -62,11 +62,11 @@ public class Card {
         this.status = status;
     }
 
-    public int getCvv() {
+    public String getCvv() {
         return cvv;
     }
 
-    public void setCvv(int cvv) {
+    public void setCvv(String cvv) {
         this.cvv = cvv;
     }
 
@@ -92,5 +92,11 @@ public class Card {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public void checkExpiryDate(){
+        if(this.expiryDate.isBefore(LocalDate.now())){
+            this.setStatus(Status.EXPIRED);
+        }
     }
 }
