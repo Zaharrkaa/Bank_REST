@@ -25,6 +25,8 @@ spring:
     change-log: classpath:db/migration/changelog.yaml
     default-schema: public
 
+jwt:
+  secret-key: "a3366ab389a1d7b3f1fbcad97c499bb976294ef24c38e6c2472ac866167727bc"
 
 server:
   port: 8080
