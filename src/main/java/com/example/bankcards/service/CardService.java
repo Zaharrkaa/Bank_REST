@@ -4,6 +4,7 @@ import com.example.bankcards.dto.CardDto;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.Status;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.CardAccessDeniedException;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.CardRepository;
@@ -33,15 +34,15 @@ public class CardService {
     }
 
     @Transactional
-    public void save(CardDto cardDto) {
+    public CardDto save(CardDto cardDto) {
         Optional<User> user = userRepository.findByUsername(cardDto.getOwnerName());
         if (user.isPresent()) {
             Card card = cardMapper.toCard(cardDto);
             card.setOwner(user.get());
             cardRepository.save(card);
+            return cardDto;
         }
         else throw new UserNotFoundException();
-
     }
 
     @Transactional
@@ -82,14 +83,14 @@ public class CardService {
 
     public Integer balance(String number, String ownerName) {
         Optional<Card> card = cardRepository.findByNumber(number);
-        if (card.isPresent()) {
-            Card cardToCheck = card.get();
-            if(cardToCheck.getOwner().getUsername().equals(ownerName)){
-                return cardToCheck.getBalance();
-            }
-            else throw new CardNotFoundException();
+        if (!card.isPresent()) {
+            throw new CardNotFoundException();
         }
-        else throw new CardNotFoundException();
+        Card cardToCheck = card.get();
+        if(!cardToCheck.getOwner().getUsername().equals(ownerName)){
+            throw new CardAccessDeniedException();
+        }
+        return cardToCheck.getBalance();
     }
 
     public List<CardDto> findAll(){

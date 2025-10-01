@@ -8,10 +8,12 @@ import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.InsufficientFundsException;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.service.TransferService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/client")
+@Tag(name = "Client controller", description = "Контроллер для операций клиента")
 public class ClientController {
 
     private final CardService cardService;
@@ -32,6 +35,7 @@ public class ClientController {
     }
 
     @GetMapping("/cards")
+    @Operation(summary = "Возвращает список карт пользователя")
     public ResponseEntity<List<CardDto>> getClientCards(@AuthenticationPrincipal UserDetails userDetails,
                                                         @RequestParam Integer page,
                                                         @RequestParam Integer size,
@@ -40,11 +44,13 @@ public class ClientController {
     }
 
     @GetMapping("/balance/{number}")
+    @Operation(summary = "Возвращает баланс карты", description = "Возвращает баланс карты, номер которой указан в URL (только карты клиента)")
     public ResponseEntity<Integer> balance(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String number) {
         return ResponseEntity.ok(cardService.balance(number, userDetails.getUsername()));
     }
 
     @PatchMapping("/transfer")
+    @Operation(summary = "Совершает перевод средств с одной карты на другую", description = "Принимает данные о переводе, совершает перевод если обе карты активны, являются картами пользователя и на балансе достаточно средст")
     public ResponseEntity<String> transfer(@AuthenticationPrincipal UserDetails userDetails, @RequestBody TransferDto transferDto) {
         transferService.transfer(transferDto, userDetails.getUsername());
         return ResponseEntity.ok("Transfer successful");
@@ -52,7 +58,7 @@ public class ClientController {
 
     @ExceptionHandler
     public ResponseEntity<String> handleException(CardAccessDeniedException e) {
-        return  ResponseEntity.badRequest().body("Access denied for this card");
+        return  ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for this card");
     }
 
     @ExceptionHandler

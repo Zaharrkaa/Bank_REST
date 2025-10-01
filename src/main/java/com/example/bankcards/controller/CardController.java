@@ -4,6 +4,8 @@ import com.example.bankcards.dto.CardDto;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.service.CardService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/cards")
+@Tag(name = "Card controller", description = "Контроллер для управления картами (доступен только админу)")
 public class CardController {
     private final CardService cardService;
 
@@ -30,6 +33,7 @@ public class CardController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "Создаёт карту", description = "Принимает dto, валидирует, конвертирует в сущность и сохраняет в базе данных")
     public ResponseEntity<String> createCard(@RequestBody @Valid CardDto cardDto, BindingResult bindingResult)
     {
         if (!bindingResult.hasErrors()) {
@@ -43,17 +47,20 @@ public class CardController {
     }
 
     @PatchMapping("/activate/{cardNumber}")
+    @Operation(summary = "Активирует карту", description = "Меняет статус на \"ACTIVE\" у карты, номер которой указан в URL")
     public ResponseEntity<String> activateCard(@PathVariable String cardNumber) {
         cardService.activate(cardNumber);
         return ResponseEntity.ok("Card activated successfully");
     }
     @PatchMapping("/block/{cardNumber}")
+    @Operation(summary = "Блокирует карту", description = "Меняет статус на \"BLOCKED\" у карты, номер которой указан в URL")
     public ResponseEntity<String> blockCard(@PathVariable String cardNumber) {
         cardService.block(cardNumber);
         return ResponseEntity.ok("Card blocked successfully");
     }
 
     @DeleteMapping("/delete/{number}")
+    @Operation(summary = "Удаляет карту", description = "Удаляет карту, нномер которой указан в URL")
     public ResponseEntity<String> deleteCard(@PathVariable String number) {
         cardService.delete(number);
         return ResponseEntity.ok("Card deleted successfully");

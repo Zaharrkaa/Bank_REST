@@ -3,6 +3,10 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.AuthDto;
 import com.example.bankcards.security.JWTService;
 import com.example.bankcards.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication controller", description = "Контроллер для регистрации пользователей и выдачи токенов")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
@@ -29,6 +34,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Регистрация пользователя", description = "Получает dto, валидирует, конвертирует в сущность и сохраняет в базе данных")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешная регистрация пользователя")
+    })
     public ResponseEntity<String> registerUser(@RequestBody @Valid AuthDto authdto, BindingResult bindingResult) {
         if (!bindingResult.hasErrors()) {
             userService.save(authdto);
@@ -41,6 +50,10 @@ public class AuthController {
     }
 
     @PostMapping("/token")
+    @Operation(summary = "Выдача токена", description = "Аутентифицирует пользователья и выдаёт токен")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "успешная выдача токена")
+    })
     public ResponseEntity<String> loginUser(@RequestBody AuthDto authdto) {
         try{
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authdto.getUsername(), authdto.getPassword()));
