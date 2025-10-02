@@ -3,6 +3,7 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.AuthDto;
 import com.example.bankcards.security.JWTService;
 import com.example.bankcards.service.UserService;
+import com.example.bankcards.util.UserValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,12 +26,14 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final UserService userService;
+    private final UserValidator userValidator;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JWTService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JWTService jwtService, UserValidator userValidator) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtService = jwtService;
+        this.userValidator = userValidator;
     }
 
     @PostMapping("/register")
@@ -39,6 +42,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Успешная регистрация пользователя")
     })
     public ResponseEntity<String> registerUser(@RequestBody @Valid AuthDto authdto, BindingResult bindingResult) {
+        userValidator.validate(authdto, bindingResult);
         if (!bindingResult.hasErrors()) {
             userService.save(authdto);
             return ResponseEntity.ok("Successfully registered!");

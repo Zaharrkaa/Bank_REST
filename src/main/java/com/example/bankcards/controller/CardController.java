@@ -4,6 +4,7 @@ import com.example.bankcards.dto.CardDto;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.service.CardService;
+import com.example.bankcards.util.CardValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +22,12 @@ import java.util.List;
 @Tag(name = "Card controller", description = "Контроллер для управления картами (доступен только админу)")
 public class CardController {
     private final CardService cardService;
+    private final CardValidator cardValidator;
 
     @Autowired
-    public CardController(CardService cardService) {
+    public CardController(CardService cardService, CardValidator cardValidator) {
         this.cardService = cardService;
+        this.cardValidator = cardValidator;
     }
 
     @GetMapping()
@@ -34,8 +37,8 @@ public class CardController {
 
     @PostMapping("/create")
     @Operation(summary = "Создаёт карту", description = "Принимает dto, валидирует, конвертирует в сущность и сохраняет в базе данных")
-    public ResponseEntity<String> createCard(@RequestBody @Valid CardDto cardDto, BindingResult bindingResult)
-    {
+    public ResponseEntity<String> createCard(@RequestBody @Valid CardDto cardDto, BindingResult bindingResult) {
+        cardValidator.validate(cardDto, bindingResult);
         if (!bindingResult.hasErrors()) {
             cardService.save(cardDto);
             return ResponseEntity.ok("Card created successfully");
